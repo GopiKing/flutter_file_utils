@@ -85,9 +85,9 @@ String getBaseName(String path, {bool extension = true}) {
 /// * path
 Future<Map<String, dynamic>> details(FileSystemEntity path) async {
   var _details = <String, dynamic>{};
-  if (path == null || !path.existsSync()) {
+  if (!path.existsSync()) {
     print('file or dir does not exists');
-    return null;
+    return <String, dynamic>{};
     // directory
   } else if (path.existsSync()) {
     // directory or file
@@ -118,7 +118,8 @@ Future<Map<String, dynamic>> details(FileSystemEntity path) async {
 
     return _details;
   }
-  return null;
+
+  return <String, dynamic>{};
 }
 
 bool isHidden(String path, String root) {
@@ -200,7 +201,7 @@ Stream<List<FileSystemEntity>> searchStream(String path, String query,
 ///
 /// Supply path alone to create by already combined path, or path + filename
 /// to be combined
-Future<Directory> createFolderByPath(String path, {String folderName}) async {
+Future<Directory> createFolderByPath(String path, {String? folderName}) async {
   print('filesystem_utils->createFolderByPath: $folderName @ $path');
   Directory _directory;
 
@@ -300,10 +301,10 @@ Future<File> cacheFile(String name) async {
 /// * sortedBy: [FlutterFileUtilsSorting]
 /// * [bool] reversed: in case parameter sortedBy is used
 Future<List<FileSystemEntity>> listFiles(String path,
-    {List<String> extensions,
+    {List<String>? extensions,
     bool followsLinks = false,
     bool excludeHidden = false,
-    FlutterFileUtilsSorting sortedBy,
+    FlutterFileUtilsSorting? sortedBy,
     bool reversed = false}) async {
   var files = <File>[];
 
@@ -341,7 +342,7 @@ Future<List<FileSystemEntity>> listFiles(String path,
     throw FileManagerError(error.toString());
   }
   if (files != null) {
-    return sortBy(files, sortedBy, reversed: reversed);
+    return sortBy(files, sortedBy!, reversed: reversed);
   }
 
   return files;
@@ -356,17 +357,17 @@ Future<List<FileSystemEntity>> listFiles(String path,
 /// * [bool] reversed: in case parameter sortedBy is used
 /// * examples: ['Android', 'Download', 'DCIM', ....]
 Future<List<String>> listFolders(Directory path,
-    {List<String> excludedFolders,
-    List<String> excludedPaths,
+    {List<String>? excludedFolders,
+    List<String>? excludedPaths,
     bool excludeHidden = false,
     bool followLinks = false,
-    FlutterFileUtilsSorting sortedBy,
+    FlutterFileUtilsSorting? sortedBy,
     bool reversed = false}) async {
   var folders = (await listDirectories(path,
           excludeHidden: excludeHidden,
           followLinks: false,
           reversed: reversed,
-          sortedBy: sortedBy))
+          sortedBy: sortedBy!))
       .map((FileSystemEntity directory) =>
           pathlib.split(directory.absolute.path).last)
       .toList();
@@ -381,7 +382,7 @@ Future<List<String>> listFolders(Directory path,
 Future<List<FileSystemEntity>> listDirectories(Directory path,
     {bool excludeHidden = false,
     bool followLinks = false,
-    FlutterFileUtilsSorting sortedBy,
+    FlutterFileUtilsSorting? sortedBy,
     bool reversed = false}) async {
   var directories = <Directory>[];
   try {
@@ -408,7 +409,7 @@ Future<List<FileSystemEntity>> listDirectories(Directory path,
     throw FileManagerError(permissionMessage + error.toString());
   }
   if (directories != null) {
-    return sortBy(directories, sortedBy);
+    return sortBy(directories, sortedBy!);
   }
 
   return directories;

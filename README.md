@@ -4,6 +4,8 @@ Helper tools for managing files on Android.
 
 ## Getting Started
 
+Null Safety added
+
 For help getting started with Flutter, view our online [documentation](https://flutter.io/).
 
 For help on editing package code, view the [documentation](https://flutter.io/developing-packages/).
@@ -25,7 +27,7 @@ dependency in your `pubspec.yaml`  file.
 dependencies:
   flutter:
     sdk: flutter
-  path_provider: ^1.6.7
+  path_provider: ^2.0.7
   flutter_file_utils: ^0.1.1
 ```
 

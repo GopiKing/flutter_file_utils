@@ -23,9 +23,9 @@ final String permissionMessage = '''
 
 class FileManager {
   // The start point .
-  Directory root;
+  Directory? root;
 
-  FileFilter filter;
+  FileFilter? filter;
 
   FileManager({@required this.root, this.filter}) : assert(root != null);
 
@@ -34,14 +34,14 @@ class FileManager {
   /// * sortedBy: [Sorting]
   /// * [bool] reversed: in case parameter sortedBy is used
   Future<List<FileSystemEntity>> recentFilesAndDirs(int count,
-      {List<String> extensions,
-      List<String> excludedPaths,
+      {List<String>? extensions,
+      List<String>? excludedPaths,
       bool excludeHidden = false,
-      FlutterFileUtilsSorting sortedBy,
+      FlutterFileUtilsSorting? sortedBy,
       bool reversed = false}) async {
     var filesPaths = await filesTree(
-        excludedPaths: excludedPaths,
-        extensions: extensions,
+        excludedPaths: excludedPaths!,
+        extensions: extensions!,
         excludeHidden: excludeHidden);
 
     // note: in case that number of recent files are not sufficient, we limit the [howMany]
@@ -68,14 +68,14 @@ class FileManager {
   /// * sortedBy: [FlutterFileUtilsSorting]
   /// * [bool] reversed: in case parameter sortedBy is used
   Future<List<FileSystemEntity>> dirsTree(
-      {List<String> excludedPaths,
+      {List<String>? excludedPaths,
       bool followLinks = false,
       bool excludeHidden = false,
-      FlutterFileUtilsSorting sortedBy}) async {
+      FlutterFileUtilsSorting? sortedBy}) async {
     var dirs = <Directory>[];
 
     try {
-      var contents = root.listSync(recursive: true, followLinks: followLinks);
+      var contents = root!.listSync(recursive: true, followLinks: followLinks);
       if (excludedPaths != null) {
         for (var fileOrDir in contents) {
           if (fileOrDir is Directory) {
@@ -111,7 +111,7 @@ class FileManager {
       throw FileManagerError(permissionMessage + error.toString());
     }
     if (dirs != null) {
-      return sortBy(dirs, sortedBy);
+      return sortBy(dirs, sortedBy!);
     }
 
     return dirs;
@@ -123,17 +123,17 @@ class FileManager {
   /// * sortedBy: [Sorting]
   /// * [bool] reversed: in case parameter sortedBy is used
   Future<List<FileSystemEntity>> filesTree(
-      {List<String> extensions,
-      List<String> excludedPaths,
+      {List<String>? extensions,
+      List<String>? excludedPaths,
       bool excludeHidden = false,
       bool reversed = false,
-      FlutterFileUtilsSorting sortedBy}) async {
+      FlutterFileUtilsSorting? sortedBy}) async {
     var files = <FileSystemEntity>[];
 
     var dirs = await dirsTree(
         excludedPaths: excludedPaths, excludeHidden: excludeHidden);
 
-    dirs.insert(0, Directory(root.path));
+    dirs.insert(0, Directory(root!.path));
 
     if (extensions != null) {
       for (var dir in dirs) {
@@ -179,11 +179,11 @@ class FileManager {
   Stream<FileSystemEntity> walk({bool followLinks = false}) async* {
     if (filter != null) {
       try {
-        yield* Directory(root.path)
+        yield* Directory(root!.path)
             .list(recursive: true, followLinks: followLinks)
             .transform(StreamTransformer.fromHandlers(
                 handleData: (FileSystemEntity fileOrDir, EventSink eventSink) {
-          if (filter.isValid(fileOrDir.absolute.path, root.absolute.path)) {
+          if (filter!.isValid(fileOrDir.absolute.path, root!.absolute.path)) {
             eventSink.add(fileOrDir);
           }
         }));
@@ -192,7 +192,7 @@ class FileManager {
       }
     } else {
       print('Flutter File Manager: walk: No filter');
-      yield* Directory(root.path)
+      yield* Directory(root!.path)
           .list(recursive: true, followLinks: followLinks);
     }
   }
@@ -208,12 +208,12 @@ class FileManager {
   /// * List<String> imagesPaths = await FileManager.search('myFile.png');
   Future<List<FileSystemEntity>> searchFuture(
     String keyword, {
-    List<String> excludedPaths,
+    List<String>? excludedPaths,
     bool filesOnly = false,
     bool dirsOnly = false,
-    List<String> extensions,
+    List<String>? extensions,
     bool reversed = false,
-    FlutterFileUtilsSorting sortedBy,
+    FlutterFileUtilsSorting? sortedBy,
   }) async {
     print('Searching for: $keyword');
     // files that will be returned
@@ -231,7 +231,7 @@ class FileManager {
       filesOnly = true;
       dirsOnly = true;
     }
-    if (extensions.isNotEmpty) dirsOnly = false;
+    if (extensions!.isNotEmpty) dirsOnly = false;
     // in the future fileAndDirTree will be used
     // searching in files
     if (dirsOnly == true) {
@@ -269,31 +269,31 @@ class FileManager {
   /// * `List<String> imagesPaths = await FileManager.search('myFile.png').toList();`
   Stream<FileSystemEntity> search(
     String keyword, {
-    FileFilter searchFilter,
-    FlutterFileUtilsSorting sortedBy,
+    FileFilter? searchFilter,
+    FlutterFileUtilsSorting? sortedBy,
   }) async* {
     try {
-      if (keyword.isEmpty || keyword == null) {
+      if (keyword.isEmpty) {
         throw FileManagerError('search keyword == null');
       }
       if (searchFilter != null) {
         print('Using default filter');
-        yield* root.list(recursive: true, followLinks: true).where((test) {
-          if (searchFilter.isValid(test.absolute.path, root.absolute.path)) {
+        yield* root!.list(recursive: true, followLinks: true).where((test) {
+          if (searchFilter.isValid(test.absolute.path, root!.absolute.path)) {
             return getBaseName(test.path, extension: true).contains(keyword);
           }
           return false;
         });
       } else if (filter != null) {
         print('Using default filter');
-        yield* root.list(recursive: true, followLinks: true).where((test) {
-          if (filter.isValid(test.absolute.path, root.absolute.path)) {
+        yield* root!.list(recursive: true, followLinks: true).where((test) {
+          if (filter!.isValid(test.absolute.path, root!.absolute.path)) {
             return getBaseName(test.path, extension: true).contains(keyword);
           }
           return false;
         });
       } else {
-        yield* root.list(recursive: true, followLinks: true).where((test) =>
+        yield* root!.list(recursive: true, followLinks: true).where((test) =>
             getBaseName(test.path, extension: true).contains(keyword));
       }
     } on FileSystemException catch (e) {

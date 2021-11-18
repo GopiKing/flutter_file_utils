@@ -17,7 +17,7 @@ class SimpleFileFilter extends FileFilter {
   /// Allowed allowedExtensions
   ///
   /// There must not be . before extension name
-  List<String> allowedExtensions;
+  List<String>? allowedExtensions;
 
   /// If [true] (default) then get hidden,
   /// else [false] do not get hidden
@@ -33,12 +33,12 @@ class SimpleFileFilter extends FileFilter {
       this.includeHidden = true,
       this.fileOnly = false,
       this.directoryOnly = false})
-      : assert(validExtensions(allowedExtensions)),
+      : assert(validExtensions(allowedExtensions!)),
         assert(!(fileOnly && directoryOnly));
 
   bool checkExtension(String path) {
     if (allowedExtensions == null) return true;
-    return allowedExtensions
+    return allowedExtensions!
         .contains(pathlib.extension(path).replaceFirst('.', ''));
   }
 
